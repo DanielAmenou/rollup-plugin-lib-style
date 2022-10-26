@@ -1,0 +1,68 @@
+{
+  "name": "rollup-plugin-lib-style",
+  "version": "1.0.0",
+  "description": "Rollup plugin that converts CSS and more preprocessor languages into CSS modules and also imports the generated CSS files",
+  "main": "lib/index.js",
+  "module": "lib/index.es.js",
+  "files": [
+    "lib",
+    "types/index.d.ts"
+  ],
+  "scripts": {
+    "build": "rollup --input src/index.js --file lib/index.es.js --format es && rollup --input src/index.js --file lib/index.js --format cjs",
+    "prepublishOnly": "npm run build && npm run test",
+    "postpublish": "git push && git push --tags",
+    "publish:beta": "npm version prerelease --preid=beta -m \"beta version - %s\" && npm publish --tag beta",
+    "publish:patch": "npm version patch -m \"patch version - %s\" && npm publish",
+    "publish:minor": "npm version minor -m \"minor version - %s\" && npm publish",
+    "publish:major": "npm version major -m \"major version - %s\" && npm publish",
+    "lint:fix": "eslint **/*.{js,jsx} --fix",
+    "lint": "eslint **/*.{js,jsx}",
+    "test": "jest",
+    "test:cov": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielamenou/rollup-plugin-lib-style"
+  },
+  "keywords": [
+    "library",
+    "rollup",
+    "plugin",
+    "style",
+    "sass",
+    "scss",
+    "css"
+  ],
+  "author": "Daniel Amenou <amenou.daniel@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  },
+  "types": "./types/index.d.ts",
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/eslint-parser": "^7.19.1",
+    "@babel/preset-env": "^7.19.3",
+    "@types/jest": "^29.1.2",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^29.1.2",
+    "eslint": "^8.25.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-rem": "^4.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.1",
+    "fs-extra": "^10.1.0",
+    "jest": "^29.1.2",
+    "jest-environment-node-single-context": "^29.0.0",
+    "prettier": "^2.7.1",
+    "rollup": "^2.79.1"
+  },
+  "dependencies": {
+    "postcss": "^8.4.17",
+    "postcss-modules": "^4.0.0",
+    "rollup-pluginutils": "^2.8.2",
+    "sass": "^1.55.0"
+  }
+}
