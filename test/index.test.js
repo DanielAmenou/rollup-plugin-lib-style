@@ -35,10 +35,10 @@ const writeBundle = async (fileName, pluginsOptions) => {
 }
 
 describe("bundle CSS files", () => {
-  // test("CSS file created with hash class name", async () => {
-  //   const styles1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles1.css")).toString()
-  //   expect(styles1).toMatch(/\.test1_([A-Za-z0-9])/)
-  // })
+  test("CSS file created with hash class name", async () => {
+    const styles1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles1.css")).toString()
+    expect(styles1).toMatch(/\.test1_([A-Za-z0-9])/)
+  })
 
   test("CSS file created with global style", async () => {
     const styles3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles3.css")).toString()

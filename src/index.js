@@ -78,12 +78,11 @@ const libStylePlugin = (options) => {
 
       const importersPaths = outputPaths
         .reduce((result, currentPath) => {
-          result.push(glob.sync(`${path.resolve(process.cwd(), currentPath)}/**/*(${importers.join("|")})`))
+          result.push(glob.sync(`${currentPath}/**/*(${importers.join("|")})`))
           return result
         }, [])
         .flat()
 
-      //const importersPaths = glob.sync(`lib/**/*(${importers.join("|")})`)
       await Promise.all(
         importersPaths.map((currentPath) =>
           fs
