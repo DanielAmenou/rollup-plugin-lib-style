@@ -62,27 +62,27 @@ This gives us the ability to consume only the used style for our component
 
 ### classNamePrefix
 
-Type: `string`
-Default: ""
+Type: `string`<br />
+Default: ""<br />
 Description: prefix for the classnames
 
 ### scopedName
 
-Type: `string`
-Default: "[local]\_[hash:base64:6]"
+Type: `string`<br />
+Default: "[local]\_[hash:base64:6]"<br />
 Description: customize the scoped name of the classname
 
 ### postCssPlugins
 
-Type: object[]
-Default: []
+Type: object[]<br />
+Default: []<br />
 Description: [PostCSS Plugins](https://postcss.org/docs/postcss-plugins)
 
 ### loaders
 
-Type: Loader[]
-Default: []
-Description: loaders for CSS preprocessor languages
+Type: Loader[]<br />
+Default: []<br />
+Description: loaders for CSS preprocessor languages<br />
 Example:
 
 ```js
@@ -99,9 +99,29 @@ export default {
 ```
 
 ### exclude
-Type: Array<string | RegExp> | string | RegExp
-Default: null
+Type: Array<string | RegExp> | string | RegExp<br />
+Default: null<br />
 Description: exclude files from load by the loader
+
+
+## Known Issues
+"Unresolved dependencies" warnings
+```
+(!) Unresolved dependencies
+https://rollupjs.org/guide/en/#warning-treating-module-as-external-dependency
+@@_MAGIC_PATH_@@/src/components/Component/style.css (imported by "src/components/Component/style.scss")
+```
+
+These warnings can be suppressed by using the "onwarn" function
+```js
+// rollup.config.js
+import {libStylePlugin, onwarn} from "rollup-plugin-lib-style"
+
+export default {
+  onwarn,
+  plugins: [libStyleLoader()],
+}
+```
 
 ## License
 
