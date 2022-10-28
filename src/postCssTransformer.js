@@ -5,15 +5,15 @@ const defaultScopedName = "[local]_[hash:base64:6]"
 
 /**
  * @typedef {object} postCssLoaderOptions
-* @property {object[]} postCssPlugins
-* @property {string} classNamePrefix
-* @property {string} scopedName
+ * @property {object[]} postCssPlugins
+ * @property {string} classNamePrefix
+ * @property {string} scopedName
  */
 
 /**
  * @typedef {object} postCssLoaderProps
-* @property {postCssLoaderOptions} options
-* @property {string} fiePath
+ * @property {postCssLoaderOptions} options
+ * @property {string} fiePath
  * @property {string} code
  */
 
