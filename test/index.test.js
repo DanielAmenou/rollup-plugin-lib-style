@@ -12,7 +12,7 @@ beforeEach(async () => {
   await writeBundle("file2.js", {libName: "libName"})
 })
 
-//afterAll(() => fs.remove(TESTS_TEMP_DIR))
+afterAll(() => fs.remove(TESTS_TEMP_DIR))
 
 const writeBundle = async (fileName, pluginsOptions) => {
   const newBundle = await rollup({
