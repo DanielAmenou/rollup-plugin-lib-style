@@ -28,7 +28,7 @@ const writeBundle = async (fileName, pluginsOptions) => {
     onwarn,
   })
  
-  newBundle.write({
+  await newBundle.write({
     dir: TESTS_TEMP_DIR,
     preserveModules: false,
     entryFileNames: fileName,
@@ -36,17 +36,17 @@ const writeBundle = async (fileName, pluginsOptions) => {
 }
 
 describe("bundle CSS files", () => {
-  test("CSS file created with hash class name", async () => {
+  test("CSS file created with hash class name", () => {
     const styles1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles1.css")).toString()
     expect(styles1).toMatch(/\.test1_([A-Za-z0-9])/)
   })
 
-  test("CSS file created with global style", async () => {
+  test("CSS file created with global style", () => {
     const styles3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles3.css")).toString()
     expect(styles3).toMatch(/body {/)
   })
 
-  test("js file contains css import", async () => {
+  test("js file contains css import", () => {
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file1.js")).toString()
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles1.css';`)
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles2.css';`)
@@ -55,17 +55,17 @@ describe("bundle CSS files", () => {
 })
 
 describe("bundle SCSS files", () => {
-  test("SCSS file created with hash class name", async () => {
+  test("SCSS file created with hash class name", () => {
     const styles1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "scssStyles.css")).toString()
     expect(styles1).toMatch(/\.test1_([A-Za-z0-9])/)
   })
 
-  test("SCSS file created with sass variable", async () => {
+  test("SCSS file created with sass variable", () => {
     const styles1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "scssStyles.css")).toString()
     expect(styles1).toMatch(/color: red;/)
   })
 
-  test("js file contains css import", async () => {
+  test("js file contains css import", () => {
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file2.js")).toString()
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles.css';`)
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles2.css';`)
