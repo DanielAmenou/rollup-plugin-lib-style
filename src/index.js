@@ -28,7 +28,7 @@ const defaultLoaders = [
 
 const replaceMagicPath = (fileContent) => fileContent.replace(MAGIC_PATH_REGEX, ".")
 
-const libStylePlugin = (options) => {
+const libStylePlugin = (options = {}) => {
   const {loaders, include, exclude, ...postCssOptions} = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
   const filter = createFilter(include, exclude)
