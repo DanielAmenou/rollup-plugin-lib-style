@@ -9,8 +9,8 @@ const TESTS_INPUT_DIR = path.join(__dirname, "test_files")
 const TESTS_OUTPUT_DIR = path.join(__dirname, "temp", "test", "test_files")
 
 beforeEach(async () => {
-  await writeBundle("file1.js", {libName: "libName"})
-  await writeBundle("file2.js", {libName: "libName"})
+  await writeBundle("file1.js")
+  await writeBundle("file2.js")
 })
 
 afterAll(() => fs.remove(TESTS_TEMP_DIR))
@@ -24,7 +24,7 @@ const writeBundle = async (fileName, pluginsOptions) => {
         dir: TESTS_TEMP_DIR,
       },
     ],
-    plugins: [libStylePlugin(pluginsOptions)],
+    plugins: [libStylePlugin()],
     onwarn,
   })
  
