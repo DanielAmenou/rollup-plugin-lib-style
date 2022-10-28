@@ -1,17 +1,39 @@
-.npm
+# Logs
 .yarn-integrity
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Dependency directories
 node_modules
 
+# Details about bundle size
+.size-snapshot.json
+
+# IDE configurations
 .vscode/
 .vs/
 .idea/
 
-.eslintcache
-
-lib/
+# Tests
+coverage/
 test/temp/
-coverage
+
+# Library output
+lib/
