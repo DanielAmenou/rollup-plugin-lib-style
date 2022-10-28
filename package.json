@@ -1,6 +1,6 @@
 {
   "name": "rollup-plugin-lib-style",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Rollup plugin that converts CSS and extensions for CSS into CSS modules and imports the generated CSS files",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
