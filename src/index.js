@@ -29,7 +29,7 @@ const defaultLoaders = [
 const replaceMagicPath = (fileContent) => fileContent.replace(MAGIC_PATH_REGEX, ".")
 
 const libStylePlugin = (options = {}) => {
-  const {loaders, include, exclude, ...postCssOptions} = options
+  const {loaders, include, exclude, importCSS = true, ...postCssOptions} = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
   const filter = createFilter(include, exclude)
   const getLoader = (filepath) => allLoaders.find((loader) => loader.regex.test(filepath))
@@ -63,7 +63,7 @@ const libStylePlugin = (options = {}) => {
         source: postCssResult.extracted.code,
       })
 
-      const importStr = `import "${MAGIC_PATH}${cssFilePath.replace(loader.regex, ".css")}";\n`
+      const importStr = importCSS ? `import "${MAGIC_PATH}${cssFilePath.replace(loader.regex, ".css")}";\n` : ""
 
       // create a new js file with css module
       return {
@@ -73,9 +73,12 @@ const libStylePlugin = (options = {}) => {
     },
 
     async closeBundle() {
+      if (!importCSS) return
+
       const importers = []
       modulesIds.forEach((id) => this.getModuleInfo(id).importers.forEach((importer) => importers.push(path.parse(importer).name + ".js"))) // TODO - add number pattern for duplicate name files
 
+      // get all the modules that import CSS files
       const importersPaths = outputPaths
         .reduce((result, currentPath) => {
           result.push(glob.sync(`${currentPath}/**/*(${importers.join("|")})`))
@@ -83,6 +86,7 @@ const libStylePlugin = (options = {}) => {
         }, [])
         .flat()
 
+      // replace magic path with relative path
       await Promise.all(
         importersPaths.map((currentPath) =>
           fs

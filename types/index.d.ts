@@ -15,9 +15,10 @@ declare interface Options {
   include?: string | string[]
   exclude?: string | string[]
   loaders?: Loader[]
-  postCssPlugins: object[]
-  classNamePrefix: string
-  scopedName: string
+  importCSS?: boolean
+  postCssPlugins?: object[]
+  classNamePrefix?: string
+  scopedName?: string
 }
 
 type onwarn = (warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void

@@ -56,9 +56,14 @@ var style = {test: "test_cPySKa"}
 export {style as default}
 ```
 
-This gives us the ability to consume only the used style for our component
+This gives us the ability to consume only the used style
 
 ## Options
+
+### importCSS
+Type: `boolean`<br />
+Default: true<br />
+Description: auto import the generated CSS
 
 ### classNamePrefix
 
@@ -82,7 +87,7 @@ Description: [PostCSS Plugins](https://postcss.org/docs/postcss-plugins)
 
 Type: Loader[]<br />
 Default: []<br />
-Description: loaders for CSS preprocessor languages<br />
+Description: loaders for CSS extension languages like Less, Stylus, ...<br />
 Example:
 
 ```js
