@@ -3,6 +3,7 @@ import fs from "fs-extra"
 import {rollup} from "rollup"
 import {libStylePlugin, onwarn} from "../src/index"
 
+const MAGIC_PATH = "@@_MAGIC_PATH_@@"
 const TESTS_TEMP_DIR = path.join(__dirname, "temp")
 const TESTS_INPUT_DIR = path.join(__dirname, "test_files")
 const TESTS_OUTPUT_DIR = path.join(__dirname, "temp", "test", "test_files")
@@ -27,7 +28,7 @@ const writeBundle = async (fileName, pluginsOptions) => {
     onwarn,
   })
  
-  await newBundle.generate({
+  newBundle.write({
     dir: TESTS_TEMP_DIR,
     preserveModules: false,
     entryFileNames: fileName,
@@ -47,9 +48,9 @@ describe("bundle CSS files", () => {
 
   test("js file contains css import", async () => {
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file1.js")).toString()
-    expect(file1).toContain("import './test/test_files/styles1.css';")
-    expect(file1).toContain("import './test/test_files/styles2.css';")
-    expect(file1).toContain("import './test/test_files/styles3.css';")
+    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles1.css';`)
+    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles2.css';`)
+    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles3.css';`)
   })
 })
 
@@ -64,9 +65,9 @@ describe("bundle SCSS files", () => {
     expect(styles1).toMatch(/color: red;/)
   })
 
-  // test("js file contains css import", async () => {
-  //   const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file2.js")).toString()
-  //   expect(file1).toContain("import './test/test_files/scssStyles.scss';")
-  //   expect(file1).toContain("import './test/test_files/scssStyles2.scss';")
-  // })
+  test("js file contains css import", async () => {
+    const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file2.js")).toString()
+    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles.css';`)
+    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles2.css';`)
+  })
 })
