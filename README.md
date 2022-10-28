@@ -1,7 +1,7 @@
 # rollup-plugin-lib-style
 
-A Rollup plugin that converts CSS files into CSS modules and also imports the generated CSS files.
-Under the assumption that your library will be bundled by webpack or another bundler, it gives us the ability to consume only the used styles
+A Rollup plugin that converts CSS and extensions for CSS into CSS modules and imports the generated CSS files.
+Under the assumption the library will be bundled by webpack or another bundler, it gives us the ability to consume only the used styles
 
 ## Why
 
