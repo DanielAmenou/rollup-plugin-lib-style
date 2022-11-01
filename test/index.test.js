@@ -8,7 +8,7 @@ const TESTS_TEMP_DIR = path.join(__dirname, "temp")
 const TESTS_INPUT_DIR = path.join(__dirname, "test_files")
 const TESTS_OUTPUT_DIR = path.join(__dirname, "temp", "test", "test_files")
 
-afterAll(() => fs.remove(TESTS_TEMP_DIR))
+afterEach(() => fs.remove(TESTS_TEMP_DIR))
 
 const writeBundleHelper = async (fileName, pluginsOptions) => {
   const newBundle = await rollup({
@@ -33,6 +33,7 @@ const writeBundleHelper = async (fileName, pluginsOptions) => {
 const writeBundle = async (pluginsOptions) => {
   await writeBundleHelper("file1.js", pluginsOptions)
   await writeBundleHelper("file2.js", pluginsOptions)
+  await writeBundleHelper("file3.js", pluginsOptions)
 }
 
 describe("bundle CSS files", () => {
@@ -55,10 +56,19 @@ describe("bundle CSS files", () => {
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles2.css';`)
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles3.css';`)
   })
+
+  test("Global Style", async () => {
+    await writeBundle()
+    const file3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file3.js")).toString()
+    const styles4 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles4.global.css")).toString()
+    expect(styles4).toContain(".test8 {")
+    expect(file3).toContain("{\"test7\":\"test7\",\"test8\":\"test8\"}")
+  })
 })
 
 describe("bundle SCSS files", () => {
-  test("SCSS file created with hash class name", () => {
+  test("SCSS file created with hash class name", async () => {
+    await writeBundle()
     const styles1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "scssStyles.css")).toString()
     expect(styles1).toMatch(/\.test1_([A-Za-z0-9])/)
   })
@@ -74,6 +84,14 @@ describe("bundle SCSS files", () => {
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file2.js")).toString()
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles.css';`)
     expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles2.css';`)
+  })
+
+  test("Global Style", async () => {
+    await writeBundle()
+    const file3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file3.js")).toString()
+    const styles3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "scssStyles3.global.css")).toString()
+    expect(styles3).toContain(".test4 {")
+    expect(file3).toContain("{\"test7\":\"test7\",\"test8\":\"test8\"}")
   })
 })
 

@@ -1,16 +1,17 @@
 # rollup-plugin-lib-style
 
-A Rollup plugin that converts CSS and extensions for CSS into CSS modules and imports the generated CSS files.
-Under the assumption the library will be bundled by webpack or another bundler, it gives us the ability to consume only the used styles
+A Rollup plugin that converts CSS and CSS extension languages into CSS modules and imports the generated CSS files. 
+This plugin gives you the ability to build a library that imports its styles (under the assumption the library will be bundled with a bundler like webpack or rollup).
+
 
 ## Why
 
-Today there are 2 main ways to bundle and import style from a library
+Today there are 2 main ways to bundle and import styles from a library
 
-- bundle all the styles into one big CSS file
-- use CSS-in-JS
+- Having a single CSS file for all styles in the library
+- Using CSS-in-JS (styled-components, emotion, ...)
 
-These two ways have some disadvantages, when we are using one big file we are importing style that probably will not be necessary, and when you are using CSS-in-JS you will increase the HTML size
+These two ways have some disadvantages, when we are having a single CSS file, we are importing styles that probably will not be necessary, and when we are using CSS-in-JS we are increasing the HTML size
 
 This plugin brings you the ability to consume only the used styles from the library
 
@@ -108,6 +109,28 @@ Type: Array<string | RegExp> | string | RegExp<br />
 Default: null<br />
 Description: exclude files from load by the loader
 
+
+## Global Styles
+In some cases, we will want to create global class names (without hash)
+we can do so by adding ".global" to the style file name.
+In this case, the scopedName will be "[local]"
+Example: myStyle.global.css, mySecondStyle.global.scss
+
+```css
+// myStyle.global.css
+.myStyle {
+  background-color: red;
+}
+```
+
+```js
+// myStyle.global.css.js
+import "./myComponent/style.css"
+
+var style = {myStyle: "myStyle"}
+
+export {style as default}
+```
 
 ## Known Issues
 "Unresolved dependencies" warnings
