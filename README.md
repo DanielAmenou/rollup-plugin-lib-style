@@ -26,10 +26,10 @@ npm i rollup-plugin-lib-style --save-dev
 
 ```js
 // rollup.config.js
-import {libStyleLoader} from "rollup-plugin-lib-style"
+import {libStylePlugin} from "rollup-plugin-lib-style"
 
 export default {
-  plugins: [libStyleLoader()],
+  plugins: [libStylePlugin()],
 }
 ```
 
@@ -100,7 +100,7 @@ const lessLoader = {
 }
 
 export default {
-  plugins: [libStyleLoader({loaders: [lessLoader]})],
+  plugins: [libStylePlugin({loaders: [lessLoader]})],
 }
 ```
 
@@ -147,7 +147,7 @@ import {libStylePlugin, onwarn} from "rollup-plugin-lib-style"
 
 export default {
   onwarn,
-  plugins: [libStyleLoader()],
+  plugins: [libStylePlugin()],
 }
 ```
 
