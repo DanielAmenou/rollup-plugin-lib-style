@@ -2,7 +2,6 @@ import {createFilter} from "rollup-pluginutils"
 import postCssTransformer from "./postCssTransformer"
 import fs from "fs-extra"
 import sass from "sass"
-import path from "path"
 import glob from "glob"
 
 const PLUGIN_NAME = "rollup-plugin-lib-style"
@@ -75,13 +74,10 @@ const libStylePlugin = (options = {}) => {
     async closeBundle() {
       if (!importCSS) return
 
-      const importers = []
-      modulesIds.forEach((id) => this.getModuleInfo(id).importers.forEach((importer) => importers.push(path.parse(importer).name + ".js"))) // TODO - add number pattern for duplicate name files
-
       // get all the modules that import CSS files
       const importersPaths = outputPaths
         .reduce((result, currentPath) => {
-          result.push(glob.sync(`${currentPath}/**/*(${importers.join("|")})`))
+          result.push(glob.sync(`${currentPath}/**/*.js`))
           return result
         }, [])
         .flat()
