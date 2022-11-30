@@ -54,7 +54,7 @@ const postCssLoader = async ({code, fiePath, options}) => {
 
   // print postcss warnings
   for (const warning of result.warnings()) {
-    console.warn(warning.message || warning.text)
+    console.warn(`WARNING: ${warning.plugin}:`, warning.text)
   }
 
   return {
