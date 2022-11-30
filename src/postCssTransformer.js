@@ -48,7 +48,7 @@ const postCssLoader = async ({code, fiePath, options}) => {
   const dependencies = []
   for (const message of result.messages) {
     if (message.type === "dependency") {
-      dependencies.add(message.file)
+      dependencies.push(message.file)
     }
   }
 

@@ -51,7 +51,7 @@ const libStylePlugin = (options = {}) => {
 
       const postCssResult = await postCssTransformer({code: rawCss.code, fiePath: id, options: postCssOptions})
 
-      for (const dependence of postCssResult.dependencies) this.addWatchFile(dependence)
+      for (const dependency of postCssResult.dependencies) this.addWatchFile(dependency)
 
       const cssFilePath = id.replace(process.cwd(), "").replace(/\\/g, "/")
 
