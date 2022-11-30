@@ -8,7 +8,7 @@ const PLUGIN_NAME = "rollup-plugin-lib-style"
 const MAGIC_PATH_REGEX = /@@_MAGIC_PATH_@@/g
 const MAGIC_PATH = "@@_MAGIC_PATH_@@"
 
-const modulesIds = new Set()
+const emittedCssFiles = []
 
 const outputPaths = []
 
@@ -41,12 +41,16 @@ const libStylePlugin = (options = {}) => {
       else options.output.forEach((outputOptions) => outputPaths.push(outputOptions.dir))
     },
 
+    resolveId(source) {
+      console.log("source", source)
+      if (emittedCssFiles.some((currentFileId) => source.replace(process.cwd(), "").replace(/\\/g, "/").includes(currentFileId))) return {id: "./file1.js"}
+    },
+
     async transform(code, id) {
       const loader = getLoader(id)
       if (!filter(id) || !loader) return null
 
-      modulesIds.add(id)
-
+      //console.log("emittedCssFiles", id.replace(process.cwd(), "").replace(/\\/g, "/"), emittedCssFiles)
       const rawCss = await loader.process({filePath: id, code})
 
       const postCssResult = await postCssTransformer({code: rawCss.code, fiePath: id, options: postCssOptions})
@@ -56,13 +60,16 @@ const libStylePlugin = (options = {}) => {
       const cssFilePath = id.replace(process.cwd(), "").replace(/\\/g, "/")
 
       // create a new css file with the generated hash class names
+      const newCssFileName = cssFilePath.replace("/", "").replace(loader.regex, ".css")
+      emittedCssFiles.push(newCssFileName)
+
       this.emitFile({
         type: "asset",
         fileName: cssFilePath.replace("/", "").replace(loader.regex, ".css"),
         source: postCssResult.extracted.code,
       })
 
-      const importStr = importCSS ? `import "${MAGIC_PATH}${cssFilePath.replace(loader.regex, ".css")}";\n` : ""
+      const importStr = importCSS ? `import ".${cssFilePath.replace(loader.regex, ".css")}";\n` : ""
 
       // create a new js file with css module
       return {
