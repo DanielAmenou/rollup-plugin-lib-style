@@ -11,6 +11,7 @@
   "scripts": {
     "build": "rollup --input src/index.js --file lib/index.es.js --format es && rollup --input src/index.js --file lib/index.js --format cjs",
     "prepublishOnly": "npm run build && npm run test",
+    "prepack": "npm run build",
     "postpublish": "git push && git push --tags",
     "publish:beta": "npm version prerelease --preid=beta -m \"beta version - %s\" && npm publish --tag beta",
     "publish:patch": "npm version patch -m \"patch version - %s\" && npm publish",
