@@ -42,7 +42,6 @@ const libStylePlugin = (options = {}) => {
     },
 
     resolveId(source) {
-      console.log("source", source)
       if (emittedCssFiles.some((currentFileId) => source.replace(process.cwd(), "").replace(/\\/g, "/").includes(currentFileId))) return {id: "./file1.js"}
     },
 
