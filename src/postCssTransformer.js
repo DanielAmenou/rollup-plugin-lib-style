@@ -28,10 +28,11 @@ const postCssLoader = async ({code, fiePath, options}) => {
   const modulesExported = {}
 
   const isGlobalStyle = /\.global.(css|scss|sass|less|stylus)$/.test(fiePath)
+  const isInNodeModules = /[\\/]node_modules[\\/]/.test(fiePath)
 
   postCssPlugins.unshift(
     postcssModules({
-      generateScopedName: isGlobalStyle ? "[local]" : classNamePrefix + scopedName,
+      generateScopedName: isGlobalStyle || isInNodeModules ? "[local]" : classNamePrefix + scopedName,
       getJSON: (cssFileName, json) => (modulesExported[cssFileName] = json),
     })
   )
