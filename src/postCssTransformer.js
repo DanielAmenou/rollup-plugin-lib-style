@@ -30,12 +30,13 @@ const postCssLoader = async ({code, fiePath, options}) => {
   const isGlobalStyle = /\.global.(css|scss|sass|less|stylus)$/.test(fiePath)
   const isInNodeModules = /[\\/]node_modules[\\/]/.test(fiePath)
 
-  postCssPlugins.unshift(
+  const postCssPluginsWithCssModules = [
     postcssModules({
-      generateScopedName: isGlobalStyle || isInNodeModules ? "[local]" : classNamePrefix + scopedName,
+      generateScopedName: isInNodeModules || isGlobalStyle ? "[local]" : classNamePrefix + scopedName,
       getJSON: (cssFileName, json) => (modulesExported[cssFileName] = json),
-    })
-  )
+    }),
+    ...postCssPlugins,
+  ]
 
   const postcssOptions = {
     from: fiePath,
@@ -43,7 +44,7 @@ const postCssLoader = async ({code, fiePath, options}) => {
     map: false,
   }
 
-  const result = await postcss(postCssPlugins).process(code, postcssOptions)
+  const result = await postcss(postCssPluginsWithCssModules).process(code, postcssOptions)
 
   // collect dependencies
   const dependencies = []
