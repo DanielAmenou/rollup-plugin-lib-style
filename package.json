@@ -61,9 +61,9 @@
     "rollup": "^3.5.0"
   },
   "dependencies": {
-    "postcss": "^8.4.17",
-    "postcss-modules": "^4.0.0",
-    "rollup-pluginutils": "^2.8.2",
-    "sass": "^1.55.0"
+    "postcss": "8.4.17",
+    "postcss-modules": "4.0.0",
+    "rollup-pluginutils": "2.8.2",
+    "sass": "1.55.0"
   }
 }
