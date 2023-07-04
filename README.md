@@ -1,8 +1,9 @@
 # rollup-plugin-lib-style
 
-A Rollup plugin that converts CSS and CSS extension languages into CSS modules and imports the generated CSS files. 
-This plugin gives you the ability to build a library that imports its styles (under the assumption the library will be bundled with a bundler like webpack or rollup).
+This plugin allows you to import CSS or SASS/SCSS files in your Rollup library and include them in the generated output. The plugin will extract the CSS or SASS/SCSS from the imported files and import them as a CSS file
 
+
+When creating a library, you may want to use CSS modules to create scoped styles for your components. However, when publishing your library as a standalone package, you also need to include the CSS styles that are used by your components. Rollup Plugin Lib Style automates this process by generating a CSS file that includes all the imported CSS modules.
 
 ## Why
 
@@ -11,7 +12,7 @@ Today there are 2 main ways to bundle and import styles from a library
 - Having a single CSS file for all styles in the library
 - Using CSS-in-JS (styled-components, emotion, ...)
 
-These two ways have some disadvantages, when we are having a single CSS file, we are importing styles that probably will not be necessary, and when we are using CSS-in-JS we are increasing the HTML size
+These two ways have some disadvantages when we are having a single CSS file, we are importing styles that probably will not be necessary, and when we are using CSS-in-JS we are increasing the HTML size
 
 This plugin brings you the ability to consume only the used styles from the library
 
@@ -75,8 +76,10 @@ Description: prefix for the classnames
 ### scopedName
 
 Type: `string`<br />
-Default: "[local]\_[hash:base64:6]"<br />
-Description: customize the scoped name of the classname
+Default: "[local]\_[hash:hex:6]"<br />
+Description: customize the scoped name of the classname.
+Available placeholders: [local], [hash], [hash:\<digset>], [hash:\<digset>:\<length>] [hash:\<length>]
+Available digset: "latin1", "hex", "base64"
 
 ### postCssPlugins
 

@@ -1,7 +1,8 @@
 import postcss from "postcss"
 import postcssModules from "postcss-modules"
+import {replaceFormat} from "./functions"
 
-const defaultScopedName = "[local]_[hash:base64:6]"
+const DEFAULT_SCOPED_NAME = "[local]_[hash:hex:6]"
 
 /**
  * @typedef {object} postCssLoaderOptions
@@ -23,7 +24,7 @@ const defaultScopedName = "[local]_[hash:base64:6]"
  * @returns
  */
 const postCssLoader = async ({code, fiePath, options}) => {
-  const {scopedName = defaultScopedName, postCssPlugins = [], classNamePrefix = ""} = options
+  const {scopedName = DEFAULT_SCOPED_NAME, postCssPlugins = [], classNamePrefix = ""} = options
 
   const modulesExported = {}
 
@@ -32,7 +33,10 @@ const postCssLoader = async ({code, fiePath, options}) => {
 
   const postCssPluginsWithCssModules = [
     postcssModules({
-      generateScopedName: isInNodeModules || isGlobalStyle ? "[local]" : classNamePrefix + scopedName,
+      generateScopedName: (name, filename, css) => {
+        const newClassName = classNamePrefix + ((isInNodeModules || isGlobalStyle) ? name : replaceFormat(scopedName, name, css))
+        return newClassName
+      },
       getJSON: (cssFileName, json) => (modulesExported[cssFileName] = json),
     }),
     ...postCssPlugins,
