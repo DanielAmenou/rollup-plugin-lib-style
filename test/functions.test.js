@@ -44,4 +44,16 @@ describe("replaceFormat function", () => {
 
     expect(result).toEqual(fileName)
   })
+
+  it("produces different hashes for different cssContent", () => {
+    const formatString = "[local]_[hash:base64:6]"
+    const fileName = "testFile"
+    const cssContent1 = ".test1 { font: 100% Helvetica, sans-serif; color: red; }"
+    const cssContent2 = ".test2 { font: 100% Helvetica, sans-serif; color: blue; }"
+
+    const result1 = replaceFormat(formatString, fileName, cssContent1)
+    const result2 = replaceFormat(formatString, fileName, cssContent2)
+
+    expect(result1).not.toEqual(result2)
+  })
 })
