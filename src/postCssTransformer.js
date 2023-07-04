@@ -34,8 +34,7 @@ const postCssLoader = async ({code, fiePath, options}) => {
   const postCssPluginsWithCssModules = [
     postcssModules({
       generateScopedName: (name, filename, css) => {
-        const newClassName = classNamePrefix + ((isInNodeModules || isGlobalStyle) ? name : replaceFormat(scopedName, name, css))
-        return newClassName
+        return isInNodeModules || isGlobalStyle ? name : classNamePrefix + replaceFormat(scopedName, name, css)
       },
       getJSON: (cssFileName, json) => (modulesExported[cssFileName] = json),
     }),
