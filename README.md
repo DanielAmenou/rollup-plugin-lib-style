@@ -112,6 +112,11 @@ Type: Array<string | RegExp> | string | RegExp<br />
 Default: null<br />
 Description: exclude files from load by the loader
 
+### customPath
+Type: string<br />
+Default: "."<br />
+Description: Change custom path for starting of reference to CSS file, useful for nested component structure
+
 
 ## Global Styles
 In some cases, we will want to create global class names (without hash)

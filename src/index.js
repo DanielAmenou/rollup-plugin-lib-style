@@ -25,10 +25,10 @@ const defaultLoaders = [
   },
 ]
 
-const replaceMagicPath = (fileContent) => fileContent.replace(MAGIC_PATH_REGEX, ".")
+const replaceMagicPath = (fileContent, customPath = ".") => fileContent.replace(MAGIC_PATH_REGEX, customPath)
 
 const libStylePlugin = (options = {}) => {
-  const {loaders, include, exclude, importCSS = true, ...postCssOptions} = options
+  const {customPath, loaders, include, exclude, importCSS = true, ...postCssOptions} = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
   const filter = createFilter(include, exclude)
   const getLoader = (filepath) => allLoaders.find((loader) => loader.regex.test(filepath))
@@ -88,7 +88,7 @@ const libStylePlugin = (options = {}) => {
           fs
             .readFile(currentPath)
             .then((buffer) => buffer.toString())
-            .then(replaceMagicPath)
+            .then((fileContent) => replaceMagicPath(fileContent, customPath))
             .then((fileContent) => fs.writeFile(currentPath, fileContent))
         )
       )
