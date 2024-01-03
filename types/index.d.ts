@@ -19,6 +19,7 @@ declare interface Options {
   postCssPlugins?: object[]
   classNamePrefix?: string
   scopedName?: string
+  customPath?: string
 }
 
 declare const onwarn: (warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void
