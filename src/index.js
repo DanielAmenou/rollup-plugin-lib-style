@@ -1,4 +1,4 @@
-import {createFilter} from "rollup-pluginutils"
+import { createFilter } from "rollup-pluginutils"
 import postCssTransformer from "./postCssTransformer"
 import fs from "fs-extra"
 import sass from "sass"
@@ -16,19 +16,19 @@ const defaultLoaders = [
   {
     name: "sass",
     regex: /\.(sass|scss)$/,
-    process: ({filePath}) => ({code: sass.compile(filePath).css.toString()}),
+    process: ({ filePath }) => ({ code: sass.compile(filePath).css.toString() }),
   },
   {
     name: "css",
     regex: /\.(css)$/,
-    process: ({code}) => ({code}),
+    process: ({ code }) => ({ code }),
   },
 ]
 
 const replaceMagicPath = (fileContent, customPath = ".") => fileContent.replace(MAGIC_PATH_REGEX, customPath)
 
 const libStylePlugin = (options = {}) => {
-  const {customPath, loaders, include, exclude, importCSS = true, ...postCssOptions} = options
+  const { customPath, customCSSPath, loaders, include, exclude, importCSS = true, ...postCssOptions } = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
   const filter = createFilter(include, exclude)
   const getLoader = (filepath) => allLoaders.find((loader) => loader.regex.test(filepath))
@@ -47,13 +47,17 @@ const libStylePlugin = (options = {}) => {
 
       modulesIds.add(id)
 
-      const rawCss = await loader.process({filePath: id, code})
+      const rawCss = await loader.process({ filePath: id, code })
 
-      const postCssResult = await postCssTransformer({code: rawCss.code, fiePath: id, options: postCssOptions})
+      const postCssResult = await postCssTransformer({ code: rawCss.code, fiePath: id, options: postCssOptions })
 
       for (const dependency of postCssResult.dependencies) this.addWatchFile(dependency)
 
-      const cssFilePath = id.replace(process.cwd(), "").replace(/\\/g, "/")
+      const getFilePath = () => {
+        return id.replace(process.cwd(), "").replace(/\\/g, "/")
+      }
+
+      const cssFilePath = customCSSPath ? customCSSPath(id) : getFilePath()
 
       // create a new css file with the generated hash class names
       this.emitFile({
@@ -67,7 +71,7 @@ const libStylePlugin = (options = {}) => {
       // create a new js file with css module
       return {
         code: importStr + postCssResult.code,
-        map: {mappings: ""},
+        map: { mappings: "" },
       }
     },
 
@@ -101,4 +105,4 @@ const onwarn = (warning, warn) => {
   warn(warning)
 }
 
-export {libStylePlugin, onwarn}
+export { libStylePlugin, onwarn }

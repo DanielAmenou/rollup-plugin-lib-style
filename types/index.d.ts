@@ -1,4 +1,4 @@
-import {PluginImpl, RollupWarning} from "rollup"
+import { PluginImpl, RollupWarning } from "rollup"
 
 declare interface ProcessArgs {
   code: string
@@ -20,10 +20,11 @@ declare interface Options {
   classNamePrefix?: string
   scopedName?: string
   customPath?: string
+  customCSSPath?: (id: string) => string
 }
 
 declare const onwarn: (warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void
 
 declare const libStylePlugin: PluginImpl<Options>
 
-export {onwarn, libStylePlugin}
+export { onwarn, libStylePlugin }

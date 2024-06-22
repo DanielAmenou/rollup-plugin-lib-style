@@ -117,6 +117,11 @@ Type: string<br />
 Default: "."<br />
 Description: Change custom path for starting of reference to CSS file, useful for nested component structure
 
+### customCSSPath
+Type: (id: string) => string<br />
+Default: undefined<br />
+Description: A callback that allows you to transform where to store import the generated CSS file from. For example, `Header.module.scss` transformed to `Header.module.css`, but NextJS treat `.module.scss` as CSS module, so you cannot import it directly. Then you can use `return id.replace(process.cwd(), "").replace(/\\/g, "/").replace('.module', '')` to fix it. This will affect both CSS filename and the `import` statement.
+
 
 ## Global Styles
 In some cases, we will want to create global class names (without hash)
