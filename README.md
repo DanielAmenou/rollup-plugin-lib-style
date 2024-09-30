@@ -2,7 +2,6 @@
 
 This plugin allows you to import CSS or SASS/SCSS files in your Rollup library and include them in the generated output. The plugin will extract the CSS or SASS/SCSS from the imported files and import them as a CSS file
 
-
 When creating a library, you may want to use CSS modules to create scoped styles for your components. However, when publishing your library as a standalone package, you also need to include the CSS styles that are used by your components. Rollup Plugin Lib Style automates this process by generating a CSS file that includes all the imported CSS modules.
 
 ## Why
@@ -63,6 +62,7 @@ This gives us the ability to consume only the used style
 ## Options
 
 ### importCSS
+
 Type: `boolean`<br />
 Default: true<br />
 Description: auto import the generated CSS
@@ -108,26 +108,31 @@ export default {
 ```
 
 ### exclude
+
 Type: Array<string | RegExp> | string | RegExp<br />
 Default: null<br />
 Description: exclude files from load by the loader
 
 ### customPath
+
 Type: string<br />
 Default: "."<br />
 Description: Change custom path for starting of reference to CSS file, useful for nested component structure
 
 ### customCSSPath
+
 Type: (id: string) => string<br />
 Default: undefined<br />
 Description: A callback that allows you to transform where to store import the generated CSS file from. For example, `Header.module.scss` transformed to `Header.module.css`, but NextJS treat `.module.scss` as CSS module, so you cannot import it directly. Then you can use `return id.replace(process.cwd(), "").replace(/\\/g, "/").replace('.module', '')` to fix it. This will affect both CSS filename and the `import` statement.
 
 ### customCSSInjectedPath
+
 Type: (id: string) => string<br />
 Default: undefined<br />
 Description: A callback that allows you to transform the injected `import` statement path. For example, if you have deep nested css files like `./components/headers/Header.css` placed along with their corresponding js, this can be transformed to `./Header.css`. This will affect both CSS filename and the `import` statement.
 
 ## Global Styles
+
 In some cases, we will want to create global class names (without hash)
 we can do so by adding ".global" to the style file name.
 In this case, the scopedName will be "[local]"
@@ -150,7 +155,9 @@ export {style as default}
 ```
 
 ## Known Issues
+
 "Unresolved dependencies" warnings
+
 ```
 (!) Unresolved dependencies
 https://rollupjs.org/guide/en/#warning-treating-module-as-external-dependency
@@ -158,6 +165,7 @@ https://rollupjs.org/guide/en/#warning-treating-module-as-external-dependency
 ```
 
 These warnings can be suppressed by using the "onwarn" function
+
 ```js
 // rollup.config.js
 import {libStylePlugin, onwarn} from "rollup-plugin-lib-style"
