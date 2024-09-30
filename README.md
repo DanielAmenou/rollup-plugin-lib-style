@@ -122,6 +122,10 @@ Type: (id: string) => string<br />
 Default: undefined<br />
 Description: A callback that allows you to transform where to store import the generated CSS file from. For example, `Header.module.scss` transformed to `Header.module.css`, but NextJS treat `.module.scss` as CSS module, so you cannot import it directly. Then you can use `return id.replace(process.cwd(), "").replace(/\\/g, "/").replace('.module', '')` to fix it. This will affect both CSS filename and the `import` statement.
 
+### customCSSInjectedPath
+Type: (id: string) => string<br />
+Default: undefined<br />
+Description: A callback that allows you to transform the injected `import` statement path. For example, if you have deep nested css files like `./components/headers/Header.css` placed along with their corresponding js, this can be transformed to `./Header.css`. This will affect both CSS filename and the `import` statement.
 
 ## Global Styles
 In some cases, we will want to create global class names (without hash)

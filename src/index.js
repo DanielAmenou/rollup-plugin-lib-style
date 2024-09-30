@@ -28,7 +28,7 @@ const defaultLoaders = [
 const replaceMagicPath = (fileContent, customPath = ".") => fileContent.replace(MAGIC_PATH_REGEX, customPath)
 
 const libStylePlugin = (options = {}) => {
-  const {customPath, customCSSPath, loaders, include, exclude, importCSS = true, ...postCssOptions} = options
+  const {customPath, customCSSPath, customCSSInjectedPath, loaders, include, exclude, importCSS = true, ...postCssOptions} = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
   const filter = createFilter(include, exclude)
   const getLoader = (filepath) => allLoaders.find((loader) => loader.regex.test(filepath))
@@ -58,6 +58,7 @@ const libStylePlugin = (options = {}) => {
       }
 
       const cssFilePath = customCSSPath ? customCSSPath(id) : getFilePath()
+      const cssFileInjectedPath = customCSSInjectedPath ? customCSSInjectedPath(cssFilePath) : cssFilePath
 
       // create a new css file with the generated hash class names
       this.emitFile({
@@ -66,7 +67,7 @@ const libStylePlugin = (options = {}) => {
         source: postCssResult.extracted.code,
       })
 
-      const importStr = importCSS ? `import "${MAGIC_PATH}${cssFilePath.replace(loader.regex, ".css")}";\n` : ""
+      const importStr = importCSS ? `import "${MAGIC_PATH}${cssFileInjectedPath.replace(loader.regex, ".css")}";\n` : ""
 
       // create a new js file with css module
       return {

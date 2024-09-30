@@ -21,6 +21,7 @@ declare interface Options {
   scopedName?: string
   customPath?: string
   customCSSPath?: (id: string) => string
+  customCSSInjectedPath?: (id: string) => string
 }
 
 declare const onwarn: (warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void
