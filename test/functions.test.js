@@ -1,5 +1,28 @@
 import crypto from "node:crypto"
-import {replaceFormat} from "../src/functions"
+import {normalizeClassName, replaceFormat} from "../src/functions"
+
+describe("normalizeClassName function", () => {
+  it("replaces invalid characters with _", () => {
+    const hash = "test#1"
+    const result = normalizeClassName(hash)
+
+    expect(result).toEqual("test_1")
+  })
+
+  it("ensures class names do not start with a number", () => {
+    const hash = "1test"
+    const result = normalizeClassName(hash)
+
+    expect(result).toEqual("_1test")
+  })
+
+  it("returns the same string if it's already a valid CSS identifier", () => {
+    const hash = "test_1"
+    const result = normalizeClassName(hash)
+
+    expect(result).toEqual(hash)
+  })
+})
 
 describe("replaceFormat function", () => {
   it("replaces [local] and [hash:base64:6] correctly", () => {

@@ -1,6 +1,6 @@
 import postcss from "postcss"
 import postcssModules from "postcss-modules"
-import {replaceFormat} from "./functions"
+import {replaceFormat, normalizeClassName} from "./functions"
 
 const DEFAULT_SCOPED_NAME = "[local]_[hash:hex:6]"
 
@@ -28,13 +28,18 @@ const postCssLoader = async ({code, fiePath, options}) => {
 
   const modulesExported = {}
 
-  const isGlobalStyle = /\.global.(css|scss|sass|less|stylus)$/.test(fiePath)
+  const isGlobalStyle = /\.global\.(css|scss|sass|less|stylus)$/.test(fiePath)
   const isInNodeModules = /[\\/]node_modules[\\/]/.test(fiePath)
 
   const postCssPluginsWithCssModules = [
     postcssModules({
       generateScopedName: (name, filename, css) => {
-        return isInNodeModules || isGlobalStyle ? name : classNamePrefix + replaceFormat(scopedName, name, css)
+        const hashContent = `${filename}:${name}:${css}`
+        const rawScopedName = replaceFormat(scopedName, name, hashContent)
+        const normalizedName = normalizeClassName(rawScopedName)
+        return isInNodeModules || isGlobalStyle
+          ? name // Use the original name for global or node_modules styles
+          : classNamePrefix + normalizedName // Apply prefix and normalize
       },
       getJSON: (cssFileName, json) => (modulesExported[cssFileName] = json),
     }),

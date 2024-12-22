@@ -11,3 +11,17 @@ export const replaceFormat = (formatString, fileName, cssContent) => {
   const hashToUse = hashString.length < hashLength ? hashString : hashString.slice(0, hashLength)
   return formatString.replace("[local]", fileName).replace(/\[hash:(.*?)(:\d+)?\]/, hashToUse)
 }
+
+/**
+ * Ensures generated class names are valid CSS identifiers.
+ * - Replaces invalid characters with `_`
+ * - Ensures class names do not start with a number
+ * @param {string} name - Original class name
+ * @returns {string} - Valid CSS class name
+ */
+export const normalizeClassName = (hash) => {
+  // Replace invalid characters with '_'
+  let sanitized = hash.replace(/[^a-zA-Z0-9-_]/g, "_")
+  if (/^[0-9]/.test(sanitized)) sanitized = `_${sanitized}`
+  return sanitized
+}
