@@ -59,11 +59,12 @@ const libStylePlugin = (options = {}) => {
 
       const cssFilePath = customCSSPath ? customCSSPath(id) : getFilePath()
       const cssFileInjectedPath = customCSSInjectedPath ? customCSSInjectedPath(cssFilePath) : cssFilePath
+      const cssFilePathWithoutSlash = cssFilePath.startsWith("/") ? cssFilePath.substring(1) : cssFilePath
 
       // create a new css file with the generated hash class names
       this.emitFile({
         type: "asset",
-        fileName: cssFilePath.replace("/", "").replace(loader.regex, ".css"),
+        fileName: cssFilePathWithoutSlash.replace(loader.regex, ".css"),
         source: postCssResult.extracted.code,
       })
 
