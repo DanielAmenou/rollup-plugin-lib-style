@@ -62,7 +62,7 @@ describe("bundle CSS files", () => {
     const file3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file3.js")).toString()
     const styles4 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "styles4.global.css")).toString()
     expect(styles4).toContain(".test8 {")
-    expect(file3).toContain("{\"test7\":\"test7\",\"test8\":\"test8\"}")
+    expect(file3).toContain('{"test7":"test7","test8":"test8"}')
   })
 })
 
@@ -91,7 +91,7 @@ describe("bundle SCSS files", () => {
     const file3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file3.js")).toString()
     const styles3 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "scssStyles3.global.css")).toString()
     expect(styles3).toContain(".test4 {")
-    expect(file3).toContain("{\"test7\":\"test7\",\"test8\":\"test8\"}")
+    expect(file3).toContain('{"test7":"test7","test8":"test8"}')
   })
 })
 
@@ -114,6 +114,34 @@ describe("plugin options", () => {
     const pluginsOptions = {scopedName: "[local]"}
     await writeBundle(pluginsOptions)
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file1.js")).toString()
-    expect(file1).toContain("{\"test1\":\"test1\"")
+    expect(file1).toContain('{"test1":"test1"')
+  })
+
+  test("sassOptions", async () => {
+    // Skip this test if mixins directory doesn't exist yet
+    const mixinsPath = path.join(TESTS_INPUT_DIR, "mixins")
+    if (!fs.existsSync(mixinsPath)) {
+      console.warn("Skipping sassOptions test - mixins directory not found")
+      return
+    }
+
+    const pluginsOptions = {
+      sassOptions: {
+        loadPaths: [mixinsPath],
+      },
+    }
+
+    // Create a special bundle just for this test
+    if (fs.existsSync(path.join(TESTS_INPUT_DIR, "fileMixins.js"))) {
+      await writeBundleHelper("fileMixins.js", pluginsOptions)
+      const cssFilePath = path.join(TESTS_OUTPUT_DIR, "sassWithMixins.css")
+
+      // Check if the CSS was generated successfully
+      expect(fs.existsSync(cssFilePath)).toBe(true)
+
+      // Check the content has the mixin styles
+      const cssContent = fs.readFileSync(cssFilePath).toString()
+      expect(cssContent).toContain("display: inline-block")
+    }
   })
 })

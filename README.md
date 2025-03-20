@@ -87,6 +87,26 @@ Type: object[]<br />
 Default: []<br />
 Description: [PostCSS Plugins](https://postcss.org/docs/postcss-plugins)
 
+### sassOptions
+
+Type: object<br />
+Default: {}<br />
+Description: Options passed to the sass compiler. Can be used to set `loadPaths` for global imports/mixins.<br />
+Example:
+
+```js
+// rollup.config.js
+export default {
+  plugins: [
+    libStylePlugin({
+      sassOptions: {
+        loadPaths: ["./src/styles", "./node_modules"],
+      },
+    }),
+  ],
+}
+```
+
 ### loaders
 
 Type: Loader[]<br />
@@ -104,6 +124,29 @@ const lessLoader = {
 
 export default {
   plugins: [libStylePlugin({loaders: [lessLoader]})],
+}
+```
+
+You can also override the default SCSS loader to customize sass compilation:
+
+```js
+// rollup.config.js
+import sass from "sass"
+
+const customSassLoader = {
+  name: "sass",
+  regex: /\.(sass|scss)$/,
+  process: ({filePath}) => ({
+    code: sass
+      .compile(filePath, {
+        loadPaths: ["./src/styles", "./node_modules"],
+      })
+      .css.toString(),
+  }),
+}
+
+export default {
+  plugins: [libStylePlugin({loaders: [customSassLoader]})],
 }
 ```
 

@@ -1,8 +1,14 @@
-import { PluginImpl, RollupWarning } from "rollup"
+import {PluginImpl, RollupWarning} from "rollup"
 
 declare interface ProcessArgs {
   code: string
   filePath: string
+  options?: any
+}
+
+declare interface SassOptions {
+  loadPaths?: string[]
+  [key: string]: any
 }
 
 declare interface Loader {
@@ -22,10 +28,11 @@ declare interface Options {
   customPath?: string
   customCSSPath?: (id: string) => string
   customCSSInjectedPath?: (id: string) => string
+  sassOptions?: SassOptions
 }
 
 declare const onwarn: (warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void
 
 declare const libStylePlugin: PluginImpl<Options>
 
-export { onwarn, libStylePlugin }
+export {onwarn, libStylePlugin}

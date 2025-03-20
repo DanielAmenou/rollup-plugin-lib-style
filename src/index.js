@@ -16,7 +16,9 @@ const defaultLoaders = [
   {
     name: "sass",
     regex: /\.(sass|scss)$/,
-    process: ({filePath}) => ({code: sass.compile(filePath).css.toString()}),
+    process: ({filePath, options}) => ({
+      code: sass.compile(filePath, options?.sassOptions || {}).css.toString(),
+    }),
   },
   {
     name: "css",
@@ -28,7 +30,7 @@ const defaultLoaders = [
 const replaceMagicPath = (fileContent, customPath = ".") => fileContent.replace(MAGIC_PATH_REGEX, customPath)
 
 const libStylePlugin = (options = {}) => {
-  const {customPath, customCSSPath, customCSSInjectedPath, loaders, include, exclude, importCSS = true, ...postCssOptions} = options
+  const {customPath, customCSSPath, customCSSInjectedPath, loaders, include, exclude, importCSS = true, sassOptions = {}, ...postCssOptions} = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
   const filter = createFilter(include, exclude)
   const getLoader = (filepath) => allLoaders.find((loader) => loader.regex.test(filepath))
@@ -47,7 +49,7 @@ const libStylePlugin = (options = {}) => {
 
       modulesIds.add(id)
 
-      const rawCss = await loader.process({filePath: id, code})
+      const rawCss = await loader.process({filePath: id, code, options: {sassOptions}})
 
       const postCssResult = await postCssTransformer({code: rawCss.code, fiePath: id, options: postCssOptions})
 
