@@ -106,7 +106,7 @@ const libStylePlugin = (options = {}) => {
 
 const onwarn = (warning, warn) => {
   if (warning.code === "UNRESOLVED_IMPORT" && warning.message.includes(MAGIC_PATH)) return
-  warn(warning)
+  if (typeof warn === "function") warn(warning)
 }
 
 export {libStylePlugin, onwarn}
