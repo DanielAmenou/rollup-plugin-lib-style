@@ -1,10 +1,6 @@
 # rollup-plugin-lib-style
 
-[![License](https://img.shields.io/npm/l/rollup-plugin-lib-style.svg)](https://github.com/danielamenou/rollup-plugin-lib-style/blob/main/LICENSE)
-
-[![npm downloads](https://img.shields.io/npm/dt/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style)
-
-[![npm version](https://img.shields.io/npm/v/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style)
+[![License](https://img.shields.io/npm/l/rollup-plugin-lib-style.svg)](https://github.com/danielamenou/rollup-plugin-lib-style/blob/main/LICENSE) [![npm downloads](https://img.shields.io/npm/dt/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style) [![npm version](https://img.shields.io/npm/v/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style)
 
 This plugin allows you to import CSS or SASS/SCSS files in your Rollup library and include them in the generated output. The plugin will extract the CSS or SASS/SCSS from the imported files and import them as a CSS file
 
