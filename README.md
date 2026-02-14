@@ -1,27 +1,36 @@
 # rollup-plugin-lib-style
 
-[![License](https://img.shields.io/npm/l/rollup-plugin-lib-style.svg)](https://github.com/danielamenou/rollup-plugin-lib-style/blob/main/LICENSE) [![npm downloads](https://img.shields.io/npm/dt/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style) [![npm version](https://img.shields.io/npm/v/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style)
+[![License](https://img.shields.io/npm/l/rollup-plugin-lib-style.svg)](https://github.com/danielamenou/rollup-plugin-lib-style/blob/master/LICENSE) [![npm downloads](https://img.shields.io/npm/dt/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style) [![npm version](https://img.shields.io/npm/v/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style)
 
-This plugin allows you to import CSS or SASS/SCSS files in your Rollup library and include them in the generated output. The plugin will extract the CSS or SASS/SCSS from the imported files and import them as a CSS file
-
-When creating a library, you may want to use CSS modules to create scoped styles for your components. However, when publishing your library as a standalone package, you also need to include the CSS styles that are used by your components. Rollup Plugin Lib Style automates this process by generating a CSS file that includes all the imported CSS modules.
+A Rollup plugin for building component libraries with **tree-shakeable, per-component CSS**. Write your styles in CSS, SASS/SCSS, Less, Stylus, or any other CSS preprocessor -- the plugin extracts scoped CSS modules and generates a separate CSS file for each component. Consumers only pay for the styles they actually use.
 
 ## Why
 
-Today there are 2 main ways to bundle and import styles from a library
+There are two common approaches to bundling and distributing styles from a library:
 
-- Having a single CSS file for all styles in the library
-- Using CSS-in-JS (styled-components, emotion, ...)
+| Approach | Drawback |
+| --- | --- |
+| **Single CSS file** | Consumers must import _all_ styles, even for components they never use. Increases total CSS payload and can cause unused-style bloat. |
+| **CSS-in-JS** (styled-components, emotion, etc.) | Adds runtime overhead, increases JavaScript bundle size, and can delay first paint since styles are computed at runtime. |
 
-These two ways have some disadvantages when we are having a single CSS file, we are importing styles that probably will not be necessary, and when we are using CSS-in-JS we are increasing the HTML size
+**rollup-plugin-lib-style** takes a fundamentally better approach for libraries: it generates a **separate CSS file per component**, automatically scoped with CSS modules. This gives you:
 
-This plugin brings you the ability to consume only the used styles from the library
+- **Zero runtime cost** -- styles are plain CSS files, not JavaScript. No runtime style injection, no extra computation on the client.
+- **Tree-shakeable CSS** -- when a consumer imports a component, only that component's CSS is loaded. Unused components contribute zero CSS to the final bundle.
+- **Scoped by default** -- CSS module hashing prevents class name collisions between your library and the consuming application, with no extra setup.
+- **Preprocessor agnostic** -- works out of the box with CSS and SASS/SCSS, and supports Less, Stylus, and any other preprocessor via custom loaders.
+- **No consumer-side configuration** -- consumers simply import your components; the CSS is automatically referenced and loaded alongside the JavaScript.
 
 ## Install
 
 ```bash
+npm install rollup-plugin-lib-style --save-dev
+```
+
+or
+
+```bash
 yarn add rollup-plugin-lib-style --dev
-npm i rollup-plugin-lib-style --save-dev
 ```
 
 ## Usage
@@ -35,23 +44,26 @@ export default {
 }
 ```
 
-After adding this plugin we will be able to use CSS, SCSS, and SASS files (and more languages by adding plugins)
-The imported CSS file will be transformed into a CSS module and a new CSS file will be generated
+After adding this plugin, you can use CSS and SASS/SCSS files out of the box. Support for Less, Stylus, and other preprocessors can be added via custom loaders (see [loaders](#loaders)).
 
-In the js file that imports style file, the import will be changed in the following way:
+Each imported style file is transformed into a CSS module. A new `.css` file is generated alongside a `.css.js` file that re-exports the class name mappings and imports the CSS.
+
+For example, given this import:
 
 ```js
 import style from "./style.css"
 ```
 
+The plugin transforms it into:
+
 ```js
 import style from "./style.css.js"
 ```
 
-The newly generated file will export the CSS module, but also will import the new CSS file.
+The generated `style.css.js` file looks like this:
 
 ```js
-// style.css.js"
+// style.css.js
 import "./myComponent/style.css"
 
 var style = {test: "test_cPySKa"}
@@ -59,45 +71,48 @@ var style = {test: "test_cPySKa"}
 export {style as default}
 ```
 
-This gives us the ability to consume only the used style
+This gives consumers the ability to import only the styles they actually use.
 
 ## Options
 
 ### importCSS
 
 Type: `boolean`<br />
-Default: true<br />
-Description: auto import the generated CSS
+Default: `true`<br />
+Description: Automatically import the generated CSS file from the JavaScript module.
 
 ### classNamePrefix
 
 Type: `string`<br />
-Default: ""<br />
-Description: prefix for the classnames
+Default: `""`<br />
+Description: A prefix added to all generated class names.
 
 ### scopedName
 
 Type: `string`<br />
-Default: "[local]\_[hash:hex:6]"<br />
-Description: customize the scoped name of the classname.
-Available placeholders: [local], [hash], [hash:\<digset>], [hash:\<digset>:\<length>] [hash:\<length>]
-Available digset: "latin1", "hex", "base64"
+Default: `"[local]_[hash:hex:6]"`<br />
+Description: Customize the scoped name format for generated class names.<br />
+Available placeholders: `[local]`, `[hash]`, `[hash:<digest>]`, `[hash:<digest>:<length>]`, `[hash:<length>]`<br />
+Available digests: `"latin1"`, `"hex"`, `"base64"`
 
 ### postCssPlugins
 
-Type: object[]<br />
-Default: []<br />
-Description: [PostCSS Plugins](https://postcss.org/docs/postcss-plugins)
+Type: `object[]`<br />
+Default: `[]`<br />
+Description: An array of [PostCSS plugins](https://postcss.org/docs/postcss-plugins) to apply during CSS processing.
 
 ### sassOptions
 
-Type: object<br />
-Default: {}<br />
-Description: Options passed to the sass compiler. Can be used to set `loadPaths` for global imports/mixins.<br />
+Type: `object`<br />
+Default: `{}`<br />
+Description: Options passed to the Sass compiler. Can be used to set `loadPaths` for global imports and mixins.
+
 Example:
 
 ```js
 // rollup.config.js
+import {libStylePlugin} from "rollup-plugin-lib-style"
+
 export default {
   plugins: [
     libStylePlugin({
@@ -111,17 +126,20 @@ export default {
 
 ### loaders
 
-Type: Loader[]<br />
-Default: []<br />
-Description: loaders for CSS extension languages like Less, Stylus, ...<br />
+Type: `Loader[]`<br />
+Default: `[]`<br />
+Description: Custom loaders for additional CSS preprocessors like Less, Stylus, etc. Each loader must have a `name`, a `regex` to match file extensions, and a `process` function that returns an object with a `code` property containing the CSS string.
+
 Example:
 
 ```js
 // rollup.config.js
+import {libStylePlugin} from "rollup-plugin-lib-style"
+
 const lessLoader = {
-  name: "lessLoader"
-  regex: /\.less$/
-  process: ({code, filePath}) => less(code)
+  name: "lessLoader",
+  regex: /\.less$/,
+  process: ({code, filePath}) => ({code: compileLess(code)}),
 }
 
 export default {
@@ -129,10 +147,11 @@ export default {
 }
 ```
 
-You can also override the default SCSS loader to customize sass compilation:
+You can also override the built-in SCSS loader to customize Sass compilation:
 
 ```js
 // rollup.config.js
+import {libStylePlugin} from "rollup-plugin-lib-style"
 import sass from "sass"
 
 const customSassLoader = {
@@ -152,43 +171,62 @@ export default {
 }
 ```
 
+### include
+
+Type: `Array<string | RegExp> | string | RegExp | null`<br />
+Default: `null`<br />
+Description: A pattern or array of patterns specifying which files to include. By default, all files matched by a loader are included.
+
 ### exclude
 
-Type: Array<string | RegExp> | string | RegExp<br />
-Default: null<br />
-Description: exclude files from load by the loader
+Type: `Array<string | RegExp> | string | RegExp | null`<br />
+Default: `null`<br />
+Description: A pattern or array of patterns specifying which files to exclude from processing.
 
 ### customPath
 
-Type: string<br />
-Default: "."<br />
-Description: Change custom path for starting of reference to CSS file, useful for nested component structure
+Type: `string`<br />
+Default: `"."`<br />
+Description: Custom base path used as the prefix for CSS file import references. Useful for nested component structures.
 
 ### customCSSPath
 
-Type: (id: string) => string<br />
-Default: undefined<br />
-Description: A callback that allows you to transform where to store import the generated CSS file from. For example, `Header.module.scss` transformed to `Header.module.css`, but NextJS treat `.module.scss` as CSS module, so you cannot import it directly. Then you can use `return id.replace(process.cwd(), "").replace(/\\/g, "/").replace('.module', '')` to fix it. This will affect both CSS filename and the `import` statement.
+Type: `(id: string) => string`<br />
+Default: `undefined`<br />
+Description: A callback to transform the path used for the generated CSS file. This affects both the emitted CSS filename and the `import` statement in the generated JavaScript.
+
+For example, if your source uses `.module.scss` files but the output should use plain `.css`, you can strip the `.module` portion:
+
+```js
+libStylePlugin({
+  customCSSPath: (id) =>
+    id
+      .replace(process.cwd(), "")
+      .replace(/\\/g, "/")
+      .replace(".module", ""),
+})
+```
 
 ### customCSSInjectedPath
 
-Type: (id: string) => string<br />
-Default: undefined<br />
-Description: A callback that allows you to transform the injected `import` statement path. For example, if you have deep nested css files like `./components/headers/Header.css` placed along with their corresponding js, this can be transformed to `./Header.css`. This will affect both CSS filename and the `import` statement.
+Type: `(id: string) => string`<br />
+Default: `undefined`<br />
+Description: A callback to transform the CSS import path in the generated JavaScript. Useful when CSS files end up in nested directories but you want flat import paths. This affects both the emitted CSS filename and the `import` statement.
 
 ## Global Styles
 
-In some cases, we will want to create global class names (without hash)
-we can do so by adding ".global" to the style file name.
-In this case, the scopedName will be "[local]"
-Example: myStyle.global.css, mySecondStyle.global.scss
+In some cases, you may want class names to remain unscoped (without a hash). You can do this by adding `.global` to the style file name. For global styles, the `scopedName` is set to `"[local]"`, preserving the original class name.
+
+Examples: `myStyle.global.css`, `mySecondStyle.global.scss`
 
 ```css
-// myStyle.global.css
+/* myStyle.global.css */
 .myStyle {
   background-color: red;
 }
 ```
+
+The generated JavaScript module:
 
 ```js
 // myStyle.global.css.js
@@ -199,9 +237,9 @@ var style = {myStyle: "myStyle"}
 export {style as default}
 ```
 
-## Known Issues
+## Suppressing "Unresolved dependencies" Warnings
 
-"Unresolved dependencies" warnings
+The plugin uses an internal placeholder path during the build process, which can cause Rollup to emit warnings like:
 
 ```
 (!) Unresolved dependencies
@@ -209,7 +247,7 @@ https://rollupjs.org/guide/en/#warning-treating-module-as-external-dependency
 @@_MAGIC_PATH_@@/src/components/Component/style.css (imported by "src/components/Component/style.scss")
 ```
 
-These warnings can be suppressed by using the "onwarn" function
+To suppress these warnings, use the `onwarn` handler exported by the plugin:
 
 ```js
 // rollup.config.js

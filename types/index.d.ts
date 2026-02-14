@@ -3,7 +3,14 @@ import {PluginImpl, RollupWarning} from "rollup"
 declare interface ProcessArgs {
   code: string
   filePath: string
-  options?: any
+  options?: {
+    sassOptions?: SassOptions
+    [key: string]: any
+  }
+}
+
+declare interface ProcessResult {
+  code: string
 }
 
 declare interface SassOptions {
@@ -13,13 +20,13 @@ declare interface SassOptions {
 
 declare interface Loader {
   name: string
-  regex: string
-  process: (arg: ProcessArgs) => string
+  regex: RegExp
+  process: (args: ProcessArgs) => ProcessResult | Promise<ProcessResult>
 }
 
 declare interface Options {
-  include?: string | string[]
-  exclude?: string | string[]
+  include?: Array<string | RegExp> | string | RegExp | null
+  exclude?: Array<string | RegExp> | string | RegExp | null
   loaders?: Loader[]
   importCSS?: boolean
   postCssPlugins?: object[]
@@ -36,3 +43,4 @@ declare const onwarn: (warning: RollupWarning, defaultHandler: (warning: string 
 declare const libStylePlugin: PluginImpl<Options>
 
 export {onwarn, libStylePlugin}
+export type {Options, Loader, ProcessArgs, ProcessResult, SassOptions}
