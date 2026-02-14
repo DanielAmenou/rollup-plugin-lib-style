@@ -1,7 +1,7 @@
 // This import will only work if loadPaths is configured correctly
-@import "button";
+@use "button";
 
 .button {
-  @include button-styles;
+  @include button.button-styles;
   font-weight: bold;
 }

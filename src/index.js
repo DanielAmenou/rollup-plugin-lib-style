@@ -1,4 +1,4 @@
-import {createFilter} from "rollup-pluginutils"
+import {createFilter} from "@rollup/pluginutils"
 import postCssTransformer from "./postCssTransformer"
 import fs from "fs-extra"
 import sass from "sass"

@@ -60,10 +60,10 @@
     "rollup": "^3.5.0"
   },
   "dependencies": {
-    "fs-extra": "^11.1.0",
-    "postcss": "8.4.39",
-    "postcss-modules": "4.0.0",
-    "rollup-pluginutils": "2.8.2",
-    "sass": "1.55.0"
+    "fs-extra": "^11.3.0",
+    "postcss": "8.5.6",
+    "postcss-modules": "6.0.1",
+    "@rollup/pluginutils": "5.3.0",
+    "sass": "1.97.3"
   }
 }
