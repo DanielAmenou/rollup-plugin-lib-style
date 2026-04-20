@@ -52,9 +52,10 @@ describe("bundle CSS files", () => {
   test("js file contains css import", async () => {
     await writeBundle()
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file1.js")).toString()
-    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles1.css';`)
-    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles2.css';`)
-    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/styles3.css';`)
+    expect(file1).not.toContain(MAGIC_PATH)
+    expect(file1).toContain(`import './test/test_files/styles1.css';`)
+    expect(file1).toContain(`import './test/test_files/styles2.css';`)
+    expect(file1).toContain(`import './test/test_files/styles3.css';`)
   })
 
   test("Global Style", async () => {
@@ -82,8 +83,9 @@ describe("bundle SCSS files", () => {
   test("js file contains css import", async () => {
     await writeBundle()
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file2.js")).toString()
-    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles.css';`)
-    expect(file1).toContain(`import '${MAGIC_PATH}/test/test_files/scssStyles2.css';`)
+    expect(file1).not.toContain(MAGIC_PATH)
+    expect(file1).toContain(`import './test/test_files/scssStyles.css';`)
+    expect(file1).toContain(`import './test/test_files/scssStyles2.css';`)
   })
 
   test("Global Style", async () => {
@@ -100,7 +102,8 @@ describe("plugin options", () => {
     const pluginsOptions = {importCSS: false}
     await writeBundle(pluginsOptions)
     const file1 = fs.readFileSync(path.join(TESTS_OUTPUT_DIR, "..", "..", "file1.js")).toString()
-    expect(file1).not.toContain(`import '${MAGIC_PATH}/test/test_files/styles1.css';`)
+    expect(file1).not.toContain(MAGIC_PATH)
+    expect(file1).not.toMatch(/import\s+['"][^'"]*\.css['"]/)
   })
 
   test("classNamePrefix", async () => {
