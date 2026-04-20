@@ -37,6 +37,7 @@
   ],
   "author": "Daniel Amenou <amenou.daniel@gmail.com>",
   "license": "MIT",
+  "funding": "https://github.com/sponsors/DanielAmenou",
   "engines": {
     "node": ">=16"
   },

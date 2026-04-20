@@ -1,6 +1,6 @@
 # rollup-plugin-lib-style
 
-[![License](https://img.shields.io/npm/l/rollup-plugin-lib-style.svg)](https://github.com/danielamenou/rollup-plugin-lib-style/blob/master/LICENSE) [![npm downloads](https://img.shields.io/npm/dt/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style) [![npm version](https://img.shields.io/npm/v/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style)
+[![License](https://img.shields.io/npm/l/rollup-plugin-lib-style.svg)](https://github.com/danielamenou/rollup-plugin-lib-style/blob/master/LICENSE) [![npm downloads](https://img.shields.io/npm/dt/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style) [![npm version](https://img.shields.io/npm/v/rollup-plugin-lib-style.svg)](https://www.npmjs.com/package/rollup-plugin-lib-style) [![Sponsor](https://img.shields.io/badge/sponsor-%E2%9D%A4%EF%B8%8F-ff69b4)](https://github.com/sponsors/DanielAmenou)
 
 A Rollup plugin for building component libraries with **tree-shakeable, per-component CSS**. Write your styles in CSS, SASS/SCSS, Less, Stylus, or any other CSS preprocessor -- the plugin extracts scoped CSS modules and generates a separate CSS file for each component. Consumers only pay for the styles they actually use.
 
@@ -280,6 +280,10 @@ export default {
   plugins: [libStylePlugin({customPath: "."})],
 }
 ```
+
+## Sponsor
+
+If this project helps you, consider supporting development on [GitHub Sponsors](https://github.com/sponsors/DanielAmenou).
 
 ## License
 
