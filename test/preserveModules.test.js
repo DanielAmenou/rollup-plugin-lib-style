@@ -3,7 +3,7 @@ import fs from "fs-extra"
 import {rollup} from "rollup"
 import {libStylePlugin, onwarn} from "../src/index"
 
-const TESTS_TEMP_DIR = path.join(__dirname, "temp")
+const TESTS_TEMP_DIR = path.join(__dirname, "temp-preserve-modules")
 const TESTS_INPUT_DIR = path.join(__dirname, "test_files")
 
 afterEach(() => fs.remove(TESTS_TEMP_DIR))

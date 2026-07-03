@@ -37,6 +37,20 @@ const defaultLoaders = [
 
 const toPosix = (p) => p.replace(/\\/g, "/")
 
+// Normalize Rollup's `output` (single object | array | undefined) to a list
+// of output directories. For a `file`-only output, derive the dir.
+const collectOutputDirs = (output) => {
+  if (!output) return []
+  const list = Array.isArray(output) ? output : [output]
+  const dirs = []
+  for (const o of list) {
+    if (!o) continue
+    if (o.dir) dirs.push(o.dir)
+    else if (o.file) dirs.push(path.dirname(o.file))
+  }
+  return dirs
+}
+
 const libStylePlugin = (options = {}) => {
   const {customPath, customCSSPath, customCSSInjectedPath, loaders, include, exclude, importCSS = true, sassOptions = {}, ...postCssOptions} = options
   const allLoaders = [...(loaders || []), ...defaultLoaders]
@@ -49,16 +63,32 @@ const libStylePlugin = (options = {}) => {
   // setups keep working; use the new asset-reference flow otherwise.
   const useLegacyInjection = customPath !== undefined || customCSSInjectedPath !== undefined
 
-  // Per-instance state, used only for the legacy injection path.
+  // Per-instance state.
+  // `outputPaths` is consumed by the legacy closeBundle rewrite path.
+  // `outputDirs` is consumed by `transform` to anchor PostCSS's `to` option
+  //   at the eventual asset OUTPUT location, so plugins like `postcss-url`
+  //   resolve `assetsPath` against the build output rather than the source
+  //   tree (issue #12).
   const outputPaths = []
+  const outputDirs = []
 
   return {
     name: PLUGIN_NAME,
 
     options(opts) {
+      // Reset per-build so state doesn't leak across `rollup()` invocations
+      // when this plugin instance is reused.
+      outputDirs.length = 0
+      for (const dir of collectOutputDirs(opts && opts.output)) {
+        outputDirs.push(dir)
+      }
+
       if (!useLegacyInjection) return null
       if (!opts.output) console.error("missing output options")
-      else opts.output.forEach((outputOptions) => outputPaths.push(outputOptions.dir))
+      else {
+        outputPaths.length = 0
+        for (const dir of outputDirs) outputPaths.push(dir)
+      }
       return null
     },
 
@@ -67,15 +97,34 @@ const libStylePlugin = (options = {}) => {
       if (!filter(id) || !loader) return null
 
       const rawCss = await loader.process({filePath: id, code, options: {sassOptions}})
-      const postCssResult = await postCssTransformer({code: rawCss.code, fiePath: id, options: postCssOptions})
 
-      for (const dependency of postCssResult.dependencies) this.addWatchFile(dependency)
-
+      // Compute the eventual emitted CSS file name BEFORE running PostCSS so
+      // we can pass its absolute output location to PostCSS's `to` option.
+      // This lets plugins like `postcss-url` (with `assetsPath`) resolve
+      // their relative paths against the OUTPUT layout rather than the
+      // source tree, which is what issue #12 was about.
       const getDefaultFilePath = () => id.replace(process.cwd(), "").replace(/\\/g, "/")
 
       const cssFilePath = customCSSPath ? customCSSPath(id) : getDefaultFilePath()
       const cssFilePathWithoutSlash = cssFilePath.startsWith("/") ? cssFilePath.substring(1) : cssFilePath
       const emittedFileName = cssFilePathWithoutSlash.replace(loader.regex, ".css")
+
+      // If we know an output directory (the common case where the user has
+      // configured `output.dir` or `output.file` in the rollup options), we
+      // anchor `to` there. Otherwise we fall back to the source path, which
+      // matches the plugin's pre-fix behavior so generate-only builds and
+      // setups that pass `output` only via `bundle.write()` keep working.
+      const outputAnchor = outputDirs[0]
+      const outputPath = outputAnchor ? path.resolve(outputAnchor, emittedFileName) : id
+
+      const postCssResult = await postCssTransformer({
+        code: rawCss.code,
+        filePath: id,
+        outputPath,
+        options: postCssOptions,
+      })
+
+      for (const dependency of postCssResult.dependencies) this.addWatchFile(dependency)
 
       const refId = this.emitFile({
         type: "asset",

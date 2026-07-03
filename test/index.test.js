@@ -4,9 +4,9 @@ import {rollup} from "rollup"
 import {libStylePlugin, onwarn} from "../src/index"
 
 const MAGIC_PATH = "@@_MAGIC_PATH_@@"
-const TESTS_TEMP_DIR = path.join(__dirname, "temp")
+const TESTS_TEMP_DIR = path.join(__dirname, "temp-index")
 const TESTS_INPUT_DIR = path.join(__dirname, "test_files")
-const TESTS_OUTPUT_DIR = path.join(__dirname, "temp", "test", "test_files")
+const TESTS_OUTPUT_DIR = path.join(__dirname, "temp-index", "test", "test_files")
 
 afterEach(() => fs.remove(TESTS_TEMP_DIR))
 

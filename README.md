@@ -127,6 +127,33 @@ Type: `object[]`<br />
 Default: `[]`<br />
 Description: An array of [PostCSS plugins](https://postcss.org/docs/postcss-plugins) to apply during CSS processing.
 
+When PostCSS runs, the plugin sets the standard PostCSS options as follows:
+
+- `from` is the source file's absolute path -- so source maps, dependency tracking, and `postcss-modules` class hashing all key off the source location, exactly as you'd expect.
+- `to` is anchored at the **eventual emitted CSS asset's location inside Rollup's output directory** (i.e. `<output.dir>/<emittedFileName>`), not at the source path.
+
+This matters for PostCSS plugins that resolve their own paths relative to `to`. The most common example is [`postcss-url`](https://github.com/postcss/postcss-url): its `assetsPath` is interpreted relative to `to`, so anchoring `to` at the output directory means `postcss-url` copies referenced files (images, fonts, etc.) to a location that tracks your build output -- not your source tree's nesting.
+
+```js
+// rollup.config.js
+import {libStylePlugin} from "rollup-plugin-lib-style"
+import postcssUrl from "postcss-url"
+
+export default {
+  input: "src/index.js",
+  output: {dir: "dist", format: "esm", preserveModules: true},
+  plugins: [
+    libStylePlugin({
+      postCssPlugins: [
+        postcssUrl({url: "copy", assetsPath: "../../assets", inline: false}),
+      ],
+    }),
+  ],
+}
+```
+
+If you do not set `output.dir` (or `output.file`) in your rollup input options -- e.g. you only specify the output through `bundle.write({dir: ...})` -- the plugin falls back to the source path for `to`, preserving the pre-2.6.0 behavior.
+
 ### sassOptions
 
 Type: `object`<br />
