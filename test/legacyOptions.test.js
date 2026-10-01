@@ -66,8 +66,8 @@ describe("legacy customCSSInjectedPath option", () => {
 
     const out = fs.readFileSync(path.join(TESTS_TEMP_DIR, "bundle.js"), "utf-8")
     expect(out).not.toContain(MAGIC_PATH)
-    // We don't assert on the exact path format because the closeBundle hook
-    // only replaces MAGIC_PATH with customPath ?? "." - but we DO assert that
+    // We don't assert on the exact path format because the plugin only
+    // replaces MAGIC_PATH with customPath ?? "." - but we DO assert that
     // the injected path now contains our /cdn segment.
     expect(out).toContain("/cdn/test/test_files/styles1.css")
   })
@@ -120,6 +120,120 @@ describe("onwarn helper", () => {
       (w) => forwarded.push(w)
     )
     expect(forwarded).toHaveLength(1)
+  })
+})
+
+describe("legacy placeholder is replaced in memory", () => {
+  // These setups used to ship "@@_MAGIC_PATH_@@" imports, because the old
+  // rewrite ran on disk in closeBundle and only looked at .js files under an
+  // output dir that had to be configured in the rollup() options.
+  const input = path.join(TESTS_INPUT_DIR, "file1.js")
+  const plugins = () => [libStylePlugin({customPath: "."})]
+
+  const expectRewritten = (code) => {
+    expect(code).not.toContain(MAGIC_PATH)
+    expect(code).toMatch(/["']\.\/test\/test_files\/styles1\.css["']/)
+  }
+
+  test.each([
+    {format: "esm", extension: ".mjs"},
+    {format: "cjs", extension: ".cjs"},
+  ])("format=$format with $extension entry files", async ({format, extension}) => {
+    const output = {format, dir: TESTS_TEMP_DIR, entryFileNames: `[name]${extension}`}
+    const bundle = await rollup({input, output, plugins: plugins(), onwarn})
+    await bundle.write(output)
+    await bundle.close()
+
+    const files = findFiles(TESTS_TEMP_DIR, extension)
+    expect(files).toHaveLength(1)
+    expectRewritten(fs.readFileSync(files[0], "utf-8"))
+  })
+
+  test("bundle.generate()", async () => {
+    const bundle = await rollup({input, plugins: plugins(), onwarn})
+    const {output} = await bundle.generate({format: "esm"})
+    await bundle.close()
+
+    expectRewritten(output[0].code)
+  })
+
+  test("output options passed only to bundle.write()", async () => {
+    const bundle = await rollup({input, plugins: plugins(), onwarn})
+    await bundle.write({format: "esm", dir: TESTS_TEMP_DIR, entryFileNames: "bundle.js"})
+    await bundle.close()
+
+    expectRewritten(fs.readFileSync(path.join(TESTS_TEMP_DIR, "bundle.js"), "utf-8"))
+  })
+
+  test("a JS API build that never calls bundle.close()", async () => {
+    const output = {format: "esm", dir: TESTS_TEMP_DIR, entryFileNames: "bundle.js"}
+    const bundle = await rollup({input, output, plugins: plugins(), onwarn})
+    await bundle.write(output)
+
+    expectRewritten(fs.readFileSync(path.join(TESTS_TEMP_DIR, "bundle.js"), "utf-8"))
+  })
+
+  test("no unresolved-import warnings, even without the onwarn helper", async () => {
+    const warnings = []
+    const bundle = await rollup({input, plugins: plugins(), onwarn: (warning) => warnings.push(warning)})
+    await bundle.generate({format: "esm"})
+    await bundle.close()
+
+    expect(warnings.map((warning) => warning.code)).not.toContain("UNRESOLVED_IMPORT")
+  })
+
+  test("other .js files in the output dir are left alone", async () => {
+    const unrelatedFile = path.join(TESTS_TEMP_DIR, "vendor", "untouched.js")
+    const unrelatedSource = `export const keep = "${MAGIC_PATH}/not-ours.css"\n`
+    fs.outputFileSync(unrelatedFile, unrelatedSource)
+
+    const output = {format: "esm", dir: TESTS_TEMP_DIR, entryFileNames: "bundle.js"}
+    const bundle = await rollup({input, output, plugins: plugins(), onwarn})
+    await bundle.write(output)
+    await bundle.close()
+
+    expect(fs.readFileSync(unrelatedFile, "utf-8")).toBe(unrelatedSource)
+    expectRewritten(fs.readFileSync(path.join(TESTS_TEMP_DIR, "bundle.js"), "utf-8"))
+  })
+
+  test("esm and cjs outputs written from the same bundle", async () => {
+    const bundle = await rollup({input, plugins: plugins(), onwarn})
+    await bundle.write({format: "esm", dir: path.join(TESTS_TEMP_DIR, "esm"), entryFileNames: "bundle.js"})
+    await bundle.write({format: "cjs", dir: path.join(TESTS_TEMP_DIR, "cjs"), entryFileNames: "bundle.js"})
+    await bundle.close()
+
+    expectRewritten(fs.readFileSync(path.join(TESTS_TEMP_DIR, "esm", "bundle.js"), "utf-8"))
+    expectRewritten(fs.readFileSync(path.join(TESTS_TEMP_DIR, "cjs", "bundle.js"), "utf-8"))
+  })
+
+  test("a minifier-style renderChunk plugin listed before the plugin", async () => {
+    // Re-prints `import '...';\n` as `import"...";` like a minifier would.
+    const fakeMinifier = {name: "fake-minifier", renderChunk: (code) => ({code: code.replace(/import '([^']*)';\n/g, 'import"$1";'), map: null})}
+    const bundle = await rollup({input, plugins: [fakeMinifier, ...plugins()], onwarn})
+    const {output} = await bundle.generate({format: "esm"})
+    await bundle.close()
+
+    expectRewritten(output[0].code)
+  })
+
+  test("customPath is inserted literally, even when it contains $ patterns", async () => {
+    const bundle = await rollup({input, plugins: [libStylePlugin({customPath: "./$&/$1"})], onwarn})
+    const {output} = await bundle.generate({format: "esm"})
+    await bundle.close()
+
+    expect(output[0].code).not.toContain(MAGIC_PATH)
+    expect(output[0].code).toContain("./$&/$1/test/test_files/styles1.css")
+  })
+
+  test("importCSS: false injects no imports but still emits the CSS", async () => {
+    const bundle = await rollup({input, plugins: [libStylePlugin({customPath: ".", importCSS: false})], onwarn})
+    const {output} = await bundle.generate({format: "esm"})
+    await bundle.close()
+
+    const [chunk, ...assets] = output
+    expect(chunk.code).not.toContain(MAGIC_PATH)
+    expect(chunk.code).not.toMatch(/import\s+['"][^'"]*\.css['"]/)
+    expect(assets.map((asset) => asset.fileName).sort()).toEqual(["test/test_files/styles1.css", "test/test_files/styles2.css", "test/test_files/styles3.css"])
   })
 })
 

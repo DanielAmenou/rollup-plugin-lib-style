@@ -97,7 +97,7 @@ export default {
 }
 ```
 
-Internally, the plugin emits each CSS file as a Rollup asset and rewrites the import specifier during `renderChunk` using Rollup's authoritative asset file names. This means `bundle.write()` and `bundle.generate()` both produce correct output -- no post-build rewrite step is required.
+Internally, the plugin emits each CSS file as a Rollup asset and rewrites the import specifier during `renderChunk` using Rollup's authoritative asset file names. This means `bundle.write()` and `bundle.generate()` both produce correct output -- no post-build rewrite step is required. The rewrite runs before other `renderChunk` plugins such as minifiers, so it doesn't matter where you list `terser()` in `plugins`.
 
 ## Options
 
@@ -254,13 +254,13 @@ libStylePlugin({
 
 Type: `string`<br />
 Default: `undefined`<br />
-Description: Legacy option. When set, the plugin switches to its original magic-path + post-build rewrite behavior, where every CSS import in the output is prefixed with this string. Most users should not need this -- the plugin now computes correct per-chunk relative paths automatically. This option is kept for backward compatibility with existing configurations.
+Description: Legacy option. When set, the plugin switches to its original magic-path behavior, where every CSS import in the output is prefixed with this string. Most users should not need this -- the plugin now computes correct per-chunk relative paths automatically. This option is kept for backward compatibility with existing configurations.
 
 ### customCSSInjectedPath _(legacy)_
 
 Type: `(id: string) => string`<br />
 Default: `undefined`<br />
-Description: Legacy option. When set, the plugin switches to the magic-path + post-build rewrite flow so the injected import specifier can differ from where the CSS file is actually emitted. Most users should not need this; if you want to change the emitted CSS location, use `customCSSPath` instead. Kept for backward compatibility.
+Description: Legacy option. When set, the plugin switches to the magic-path flow so the injected import specifier can differ from where the CSS file is actually emitted. Most users should not need this; if you want to change the emitted CSS location, use `customCSSPath` instead. Kept for backward compatibility.
 
 ## Global Styles
 
@@ -286,24 +286,18 @@ var style = {myStyle: "myStyle"}
 export {style as default}
 ```
 
-## `onwarn` handler _(only needed with legacy options)_
+## `onwarn` handler _(no longer needed)_
 
-In its default mode the plugin resolves its own synthetic imports during the build, so Rollup emits no warnings and no `onwarn` handler is required. However, if you opt into legacy behavior by setting `customPath` or `customCSSInjectedPath`, the plugin falls back to its original magic-path mechanism, which causes Rollup to warn about unresolved imports:
+The plugin resolves its own synthetic imports during the build in both its default and legacy modes, so Rollup emits no unresolved-import warnings and no `onwarn` handler is required.
 
-```
-(!) Unresolved dependencies
-https://rollupjs.org/guide/en/#warning-treating-module-as-external-dependency
-@@_MAGIC_PATH_@@/src/components/Component/style.css (imported by "src/components/Component/style.scss")
-```
-
-In that case, use the exported `onwarn` handler to suppress them:
+Earlier versions warned about unresolved `@@_MAGIC_PATH_@@/...` imports when `customPath` or `customCSSInjectedPath` was set. The exported `onwarn` handler that suppressed those warnings is still available, so existing configurations keep working:
 
 ```js
 // rollup.config.js
 import {libStylePlugin, onwarn} from "rollup-plugin-lib-style"
 
 export default {
-  onwarn,
+  onwarn, // optional
   plugins: [libStylePlugin({customPath: "."})],
 }
 ```
